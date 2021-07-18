@@ -22,6 +22,8 @@ hydralit_example> pip install -r requirements.txt
 hydralit_example> streamlit run secure.app
 ```
 
+### [You can see this example running here](https://hydralit-secure-sample.herokuapp.com/)
+
 ### Converting existing applications
 This code sample comes directly from the [Streamlit example data explorer](https://docs.streamlit.io/en/stable/tutorial/create_a_data_explorer_app.html#let-s-put-it-all-together)
 ```python

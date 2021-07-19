@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='hydralit',
-    version='1.0.1',
+    version='1.0.2',
     description='Multi-app Streamlit library.',
     long_description=long_description,
     long_description_content_type='text/markdown',

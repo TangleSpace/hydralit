@@ -1,11 +1,22 @@
  
- ## Hydralit <img src="./docs/images/hydra.png" alt="drawing" width="50"/>
+ ## Hydralit <img src="https://github.com/TangleSpace/hydralit/raw/main/docs/images/hydra.png" alt="drawing" width="50"/>
 The Hydralit package is a wrapping and template project to combine multiple independant (or somewhat dependant) Streamlit applications into a multi-page application.
 
 Currently the project implements a host application HydraApp and each child application simply needs to be a class deriving from the HydraHeadApp class and implement a single, simple method, run().
 
 When converting existing applications, you can effectively put all the existing code inside the run() method and create a wrapper class deriving from HydraHeadApp. Then you create the parent app as an instance of HydraApp, add your child apps to it (see examples [app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/app.py") and [secure_app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/secure_app.py")) and with only a few lines of code everything will magically come together.
 
+<p align="center">
+	<a href="https://pepy.tech/project/hydralit/" alt="PyPI downloads">
+	<img src="https://pepy.tech/badge/hydralit" />
+	</a>
+    <a href="https://www.python.org/" alt="Python version">
+        <img src="https://img.shields.io/pypi/pyversions/hydralit" /></a>
+    <a href="https://pypi.org/project/hydralit/" alt="PyPI version">
+        <img src="https://img.shields.io/pypi/v/hotstepper" /></a>
+    <a href="https://hotstepper.mit-license.org/" alt="License">
+        <img src="http://img.shields.io/:license-mit-blue.svg?style=flat-square"></a>
+</p>
 
 ## Installing Hydralit
 Hydralit can be installed from PyPI:

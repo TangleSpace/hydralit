@@ -171,7 +171,7 @@ class HydraHeadApp(ABC):
         else:
             tag_name = next(iter(css_formatting.keys()))
             css_styling = next(iter(css_formatting.values()))
-            css_styling.replace(tag_name,button_id)
+            css_styling = css_styling.replace(tag_name,button_id)
 
 
         dl_link = css_styling+f'<a download="{download_filename}" id="{button_id}" href="data:file/txt;base64,{b64}">{button_text}</a><br></br>'

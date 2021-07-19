@@ -13,7 +13,7 @@ When converting existing applications, you can effectively put all the existing 
     <a href="https://www.python.org/" alt="Python version">
         <img src="https://img.shields.io/pypi/pyversions/hydralit" /></a>
     <a href="https://pypi.org/project/hydralit/" alt="PyPI version">
-        <img src="https://img.shields.io/pypi/v/hotstepper" /></a>
+        <img src="https://img.shields.io/pypi/v/hydralit" /></a>
     <a href="https://hotstepper.mit-license.org/" alt="License">
         <img src="http://img.shields.io/:license-mit-blue.svg?style=flat-square"></a>
 </p>
@@ -242,7 +242,6 @@ if __name__ == '__main__':
 
     #we want to have secure access for this HydraApp, so we provide a login application
     #optional logout label, can be blank for something nicer!
-
     #app.add_app("Login", apps.LoginApp(title='Login'),is_login=True,logout_label='Piss Off 🖕')
     app.add_app("Login", apps.LoginApp(title='Login'),is_login=True) 
 

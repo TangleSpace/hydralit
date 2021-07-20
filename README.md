@@ -33,7 +33,8 @@ hydralit_example> pip install -r requirements.txt
 hydralit_example> streamlit run secure.app
 ```
 
-### [You can see this example running here](https://hydralit-secure-sample.herokuapp.com/)
+<h1><a href="https://hydralit-secure-sample.herokuapp.com/">You can see this example running here</a></h1>
+<img src="https://github.com/TangleSpace/hydralit-example/raw/main/docs/images/hydralit-secure-example.gif" alt="example" width="80%"/>
 
 ### Converting existing applications
 This code sample comes directly from the [Streamlit example data explorer](https://docs.streamlit.io/en/stable/tutorial/create_a_data_explorer_app.html#let-s-put-it-all-together)

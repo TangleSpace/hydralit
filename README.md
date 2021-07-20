@@ -14,8 +14,10 @@ When converting existing applications, you can effectively put all the existing 
         <img src="https://img.shields.io/pypi/pyversions/hydralit" /></a>
     <a href="https://pypi.org/project/hydralit/" alt="PyPI version">
         <img src="https://img.shields.io/pypi/v/hydralit" /></a>
-    <a href="https://hotstepper.mit-license.org/" alt="License">
-        <img src="http://img.shields.io/:license-mit-blue.svg?style=flat-square"></a>
+    <a href="https://hydralit.aur-license.org/" alt="License">
+        <img src="http://img.shields.io/:license-Apache-blue.svg?style=flat-square"></a>
+    <a href="https://streamlit.io/" alt="Streamlit">
+        <img src="http://img.shields.io/:streamlit->=0.84.0-blue.svg?style=flat-square"></a>
 </p>
 
 ## Installing Hydralit

@@ -61,11 +61,11 @@ class HydraApp(object):
         self._nav_horizontal = nav_horizontal
 
         if nav_container is None:
-            self._nav_container = st.beta_container()
+            self._nav_container = st.container()
         else:
             #hack to stop the beta containers from running set_page_config before HydraApp gets a chance to.
             #if we have a beta_columns container, the instance is delayed until the run() method is called, beta components, who knew!
-            if nav_container.__name__ in ['beta_container']:
+            if nav_container.__name__ in ['container']:
                 self._nav_container = nav_container()
             else:
                 self._nav_container = nav_container
@@ -175,14 +175,14 @@ class HydraApp(object):
             number_of_sections = int(self._login_app is not None) + len(complex_nav.keys())
 
         if self._nav_horizontal:
-            if hasattr(self._nav_container,'beta_columns'):
-                nav_slots = self._nav_container.beta_columns(number_of_sections)
-            elif self._nav_container.__name__ in ['beta_columns']:
+            if hasattr(self._nav_container,'columns'):
+                nav_slots = self._nav_container.columns(number_of_sections)
+            elif self._nav_container.__name__ in ['columns']:
                 nav_slots = self._nav_container(number_of_sections)
             else:
                 nav_slots = self._nav_container
         else:
-            if self._nav_container.__name__ in ['beta_columns']:
+            if self._nav_container.__name__ in ['columns']:
                 #columns within columns currently not supported
                 nav_slots = st
             else:
@@ -211,9 +211,9 @@ class HydraApp(object):
                     nav_section_root = nav_slots
 
                 if len(complex_nav[nav_section_name]) == 1:
-                    nav_section = nav_section_root.beta_container()
+                    nav_section = nav_section_root.container()
                 else:
-                    nav_section = nav_section_root.beta_expander(label=nav_section_name)
+                    nav_section = nav_section_root.expander(label=nav_section_name)
 
                 for nav_item in complex_nav[nav_section_name]:
                     if nav_section.button(label=self._nav_pointers[nav_item]):

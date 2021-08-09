@@ -139,34 +139,36 @@ class HydraHeadApp(ABC):
         button_uuid = str(uuid.uuid4()).replace('-', '')
         button_id = re.sub('\d+', '', button_uuid)
 
+        pc = st.get_option('theme.primaryColor')
+        bc = st.get_option('theme.backgroundColor')
+        sbc = st.get_option('theme.secondaryBackgroundColor')
+        tc = st.get_option('theme.textColor')
+
         if css_formatting is None:
             css_styling = f""" 
                 <style>
-                    #{button_id} {{
-                        display: inline-flex;
-                        -webkit-box-align: center;
-                        align-items: center;
-                        -webkit-box-pack: center;
-                        justify-content: center;
-                        font-weight: 400;
-                        padding: 0.25rem 0.75rem;
-                        border-radius: 0.25rem;
-                        margin: 0px;
-                        line-height: 1.6;
-                        color: inherit;
-                        width: auto;
-                        background-color: rgb(19, 23, 32);
-                        border: 1px solid rgba(250, 250, 250, 0.2);
+                    #mybutton {{
+                        background-color:{sbc};
+                        color: rgb(38, 39, 48);
+                        padding: 0.25em 0.38em;
+                        position: relative;
+                        text-decoration: none;
+                        border-radius: 4px;
+                        border-width: 1px;
+                        border-style: solid;
+                        border-color: rgb(243, 135, 13);
+                        border-image: initial;
+
                     }} 
-                    #{button_id}:hover {{
-                        border-color: rgb(246, 51, 102);
-                        color: rgb(246, 51, 102);
+                    #mybutton:hover {{
+                        border-color:{bc};
+                        background-color:{pc};
+                        color:{bc};
                     }}
-                    #{button_id}:active {{
-                        color: rgb(255, 255, 255);
-                        border-color: rgb(246, 51, 102);
-                        background-color: rgb(246, 51, 102);
-                    }}
+                    #mybutton:active {{
+                        background-color:{bc};
+                        color:{pc};
+                        }}
                 </style> """
         else:
             tag_name = next(iter(css_formatting.keys()))

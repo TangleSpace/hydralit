@@ -1,11 +1,14 @@
  
- ## Hydralit <img src="https://github.com/TangleSpace/hydralit/raw/main/docs/images/hydra.png" alt="drawing" width="50"/>
+ # **Hydralit** <img src="https://github.com/TangleSpace/hydralit/raw/main/docs/images/hydra.png" alt="hydra" width="50"/>
 The Hydralit package is a wrapping and template project to combine multiple independant (or somewhat dependant) Streamlit applications into a multi-page application.
 
 Currently the project implements a host application HydraApp and each child application simply needs to be a class deriving from the HydraHeadApp class and implement a single, simple method, run().
 
 When converting existing applications, you can effectively put all the existing code inside the run() method and create a wrapper class deriving from HydraHeadApp. Then you create the parent app as an instance of HydraApp, add your child apps to it (see examples [app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/app.py") and [secure_app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/secure_app.py")) and with only a few lines of code everything will magically come together.
 
+## **Hydralit >=1.0.3 now requires a minimum version of Streamlit >=0.86.x to fully support the recently migrated beta containers, if using Streamlit <=0.85.x please continue to use Hydralit <=1.0.2**
+
+<br>
 <p align="center">
 	<a href="https://pepy.tech/project/hydralit/" alt="PyPI downloads">
 	<img src="https://pepy.tech/badge/hydralit" />
@@ -17,7 +20,7 @@ When converting existing applications, you can effectively put all the existing 
     <a href="https://hydralit.aur-license.org/" alt="License">
         <img src="http://img.shields.io/:license-Apache-blue.svg?style=flat-square"></a>
     <a href="https://streamlit.io/" alt="Streamlit">
-        <img src="http://img.shields.io/:streamlit->=0.84.0-blue.svg?style=flat-square"></a>
+        <img src="http://img.shields.io/:streamlit->=0.86.0-blue.svg?style=flat-square"></a>
 </p>
 
 ## Installing Hydralit

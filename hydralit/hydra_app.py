@@ -1,4 +1,5 @@
 from typing import Dict
+from typing_extensions import ParamSpec
 import streamlit as st
 from hydralit.sessionstate import SessionState
 from hydralit.loading_app import LoadingApp
@@ -9,7 +10,7 @@ class HydraApp(object):
 
     """
     
-    def __init__(self, title='Streamlit MultiApp', nav_container=None, nav_horizontal=True,layout='wide', favicon = "🧊",sidebar_state = 'auto', hide_streamlit_markers = False, clear_cross_app_sessions=True, session_params=None):
+    def __init__(self, title='Streamlit MultiApp', nav_container=None, nav_horizontal=True,layout='wide', favicon = "🧊",sidebar_state = 'auto', hide_streamlit_markers = False,use_banner_images=None,banner_spacing=None, clear_cross_app_sessions=True, session_params=None):
         """
         A class to create an Multi-app Streamlit application. This class will be the host application for multiple applications that are added after instancing.
 
@@ -39,6 +40,10 @@ class HydraApp(object):
             The starting state of the sidebase, same as variable used in `set_page_config <https://docs.streamlit.io/en/stable/api.html?highlight=set_page_config#streamlit.set_page_config>`.
         hide_streamlit_markers: bool, False
             A flag to hide the default Streamlit menu hamburger button and the footer watermark.
+        use_banner_images: str or Array, None
+            A path to the image file to use as a banner above the menu or an array of paths to use multiple images spaced using the rations from the banner_spacing parameter.
+        banner_spacing: Array, None
+            An array to specify the alignment of the banner images, this is the same as the array spec used by Streamlit Columns, if you want centered with 20% padding either side -> banner_spacing =[20,60,20]
         clear_cross_app_sessions: bool, True
             A flag to indicate if the local session store values within individual apps should be cleared when moving to another app, if set to False, when loading sidebar controls, will be a difference between expected and selected.
         session_params: Dict
@@ -50,15 +55,20 @@ class HydraApp(object):
         self._nav_pointers = {}
         self._login_app = None
         self._home_app = None
+        self._banners = use_banner_images
+        self._banner_spacing = banner_spacing
         self._loader_app = LoadingApp()
         self._logout_label = 'Logout 🔒'
 
         try:
             st.set_page_config(page_title=title,page_icon=favicon,layout=layout,initial_sidebar_state=sidebar_state,)
         except Exception as e:
-            print('page config has already been called.\nYou appear to be using a beta container that has already called st.set_page_config.')
+            print('page config has already been called.\nYou appear to be using a container that has already called st.set_page_config.')
 
         self._nav_horizontal = nav_horizontal
+
+        if self._banners is not None:
+            self._banner_container = st.container()
 
         if nav_container is None:
             self._nav_container = st.container()
@@ -154,10 +164,8 @@ class HydraApp(object):
         try:
             if self.session_state.selected_app == None:
                 self._loader_app.run(self._apps[self._home_app])
-                #self._apps[self._home_app].run()
             else:
                 self._loader_app.run(self._apps[self.session_state.selected_app])
-                #self._apps[self.session_state.selected_app].run()
         except Exception as e:
             st.error('😭 Error triggered from app: **{}**, someone will be punished for your inconvenience, we humbly request you try again.'.format(self.session_state.selected_app))
             st.error('Details: {}'.format(e))
@@ -213,7 +221,7 @@ class HydraApp(object):
                 if len(complex_nav[nav_section_name]) == 1:
                     nav_section = nav_section_root.container()
                 else:
-                    nav_section = nav_section_root.expander(label=nav_section_name)
+                    nav_section = nav_section_root.expander(label=nav_section_name,expanded=False)
 
                 for nav_item in complex_nav[nav_section_name]:
                     if nav_section.button(label=self._nav_pointers[nav_item]):
@@ -253,6 +261,30 @@ class HydraApp(object):
         #A hack to hide the hamburger button and Streamlit footer
         if self._hide_streamlit_markings is not None:
             st.markdown(self._hide_streamlit_markings, unsafe_allow_html=True)
+
+        if self._banners is not None:
+            if isinstance(self._banners,str):
+                self._banners = [self._banners]
+
+            if self._banner_spacing is not None and len(self._banner_spacing) == len(self._banners):
+                    cols= self._banner_container.columns(self._banner_spacing)
+                    for idx, im in enumerate(self._banners):
+                        if im is not None:
+                            if isinstance(im,Dict):
+                                cols[idx].markdown(next(iter(im.values())),unsafe_allow_html=True)
+                            else:
+                                cols[idx].image(im)
+            else:
+                if self._banner_spacing is not None and len(self._banner_spacing) != len(self._banners):
+                    print('WARNING: Banner spacing spec is a different length to the number of banners supplied, using even spacing for each banner.')
+
+                cols= self._banner_container.columns([1]*len(self._banners))
+                for idx, im in enumerate(self._banners):
+                    if im is not None:
+                        if isinstance(im,Dict):
+                            cols[idx].markdown(next(iter(im.values())),unsafe_allow_html=True)
+                        else:
+                            cols[idx].image(im)
 
 
         if self.session_state.allow_access > 0 or self._login_app is None:

@@ -4,8 +4,10 @@ import validators
 import json
 import uuid
 import re
-import base64
+import bz2
 import pickle
+import compress_pickle as cp
+import base64
 import streamlit as st
 import pandas as pd
 
@@ -91,7 +93,7 @@ class HydraHeadApp(ABC):
             st.experimental_rerun()
 
 
-    def download_button(self,object_to_download, download_filename, button_text, parent_container=None,pickle_it=False, css_formatting=None, **kwargs):
+    def download_button(self,object_to_download, download_filename, button_text, use_compression=False,parent_container=None,pickle_it=False, css_formatting=None, **kwargs):
         """
         A convenience method to include a dataframe download button within this application.
 
@@ -103,6 +105,8 @@ class HydraHeadApp(ABC):
             The default name of the download file.
         button_text: str
             The text to display on the download button
+        use_compression: bool, False
+            Compress the object using bz2 compression before encoding into link.
         parent_container: Streamlit.container
             The parent container in which to create the button.
         pickle_it: bool, False
@@ -130,11 +134,19 @@ class HydraHeadApp(ABC):
         else:
             object_to_download = json.dumps(object_to_download,**kwargs)
 
+
         try:
-            b64 = base64.b64encode(object_to_download.encode()).decode()
+            if use_compression:
+                b64 = base64.b64encode(cp.dumps(object_to_download.encode(),compression="gzip")).decode()
+            else:
+                b64 = base64.b64encode(object_to_download.encode()).decode()
 
         except AttributeError as e:
-            b64 = base64.b64encode(object_to_download).decode()
+            if use_compression:
+                b64 = base64.b64encode(cp.dumps(object_to_download,compression="gzip")).decode()
+            else:
+                b64 = base64.b64encode(object_to_download).decode()
+
 
         button_uuid = str(uuid.uuid4()).replace('-', '')
         button_id = re.sub('\d+', '', button_uuid)

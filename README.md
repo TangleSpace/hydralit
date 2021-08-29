@@ -30,6 +30,17 @@ Hydralit can be installed from PyPI:
 pip install hydralit
 ```
 
+## Latest features
+ - Banners
+ - Compression behind download button
+ - Hydralit Navbar
+
+## Now powered by [Hydralit Components](https://github.com/TangleSpace/hydralit_components).
+Currently the complex collapsable menu format is not supported by Hydralit Navbar, however if you can live without it for now, you will be rewarded with an animated and responsive navbar.
+<p align="center">
+<img src="https://raw.githubusercontent.com/tanglespace/hydralit_components/master/resources/hydralit_navbar.gif" title="Quick Example" alt="Quick Example", width="60%" height="100%">
+</p>
+
 ### Examples
 You can try it out by running the two sample applications with their children that are located in the [hydralit-example repository](https://github.com/TangleSpace/hydralit-example).
 ```bash

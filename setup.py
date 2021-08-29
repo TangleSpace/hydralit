@@ -8,14 +8,14 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='hydralit',
-    version='1.0.4',
+    version='1.0.5',
     description='Multi-app Streamlit library.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/tanglespace/hydralit',
     author='Jackson Storm',
     author_email='c6lculus8ntr0py@gmail.com',
-    license='MIT',
+    license="Apache 2",
     project_urls={
         'Documentation': 'https://github.com/tanglespace/hydralit',
         'Source': 'https://github.com/tanglespace/hydralit',
@@ -31,12 +31,10 @@ setuptools.setup(
     ],
     install_requires=[
         'streamlit >=0.86',
-        'hotstepper',
-        'altair',
-        'pandas',
+        'hydralit_components',
+        'compress_pickle',
         'validators',
         'bokeh',
-        'scipy'
     ],
     python_requires='>=3.6',
     keywords=[

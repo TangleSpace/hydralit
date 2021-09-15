@@ -4,7 +4,6 @@ import validators
 import json
 import uuid
 import re
-import bz2
 import pickle
 import compress_pickle as cp
 import base64

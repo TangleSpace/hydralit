@@ -31,6 +31,7 @@ setuptools.setup(
     ],
     install_requires=[
         'streamlit >=0.86',
+        'compress_pickle',
         'hydralit_components',
         'validators',
         'bokeh',

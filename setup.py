@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='hydralit',
-    version='1.0.5',
+    version='1.0.6',
     description='Multi-app Streamlit library.',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -32,7 +32,6 @@ setuptools.setup(
     install_requires=[
         'streamlit >=0.86',
         'hydralit_components',
-        'compress_pickle',
         'validators',
         'bokeh',
     ],

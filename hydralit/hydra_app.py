@@ -10,7 +10,7 @@ class HydraApp(object):
 
     """
     
-    def __init__(self, title='Streamlit MultiApp', nav_container=None, nav_horizontal=True,layout='wide', favicon = "🧊",use_navbar=True,navbar_theme=None,sidebar_state = 'auto', hide_streamlit_markers = False,use_banner_images=None,banner_spacing=None, clear_cross_app_sessions=True, session_params=None):
+    def __init__(self, title='Streamlit MultiApp', nav_container=None, nav_horizontal=True,layout='wide', favicon = "🧊",use_navbar=True,navbar_theme=None,navbar_sticky=True,sidebar_state = 'auto', hide_streamlit_markers = False,use_banner_images=None,banner_spacing=None, clear_cross_app_sessions=True, session_params=None):
         """
         A class to create an Multi-app Streamlit application. This class will be the host application for multiple applications that are added after instancing.
 
@@ -45,6 +45,8 @@ class HydraApp(object):
              - txc_active: Active Menu Item Text Color
              - option_active: Active Menu Item Color            
             example, navbar_theme = {'txc_inactive': '#FFFFFF','menu_background':'red','txc_active':'yellow','option_active':'blue'}
+        navbar_sticky: bool, True
+            Set navbar to be sticky and fixed to the top of the window.
         sidebar_state: str, 'auto'
             The starting state of the sidebase, same as variable used in `set_page_config <https://docs.streamlit.io/en/stable/api.html?highlight=set_page_config#streamlit.set_page_config>`.
         hide_streamlit_markers: bool, False
@@ -64,13 +66,15 @@ class HydraApp(object):
         self._nav_pointers = {}
         self._navbar_pointers = {}
         self._login_app = None
+        self._unsecure_app = None
         self._home_app = None
+        self._navbar_sticky = navbar_sticky
         self._use_navbar = use_navbar
         self._navbar_theme = navbar_theme
         self._banners = use_banner_images
         self._banner_spacing = banner_spacing
         self._loader_app = LoadingApp()
-        self._logout_label = 'Logout 🔒'
+        self._logout_label = None
 
         try:
             st.set_page_config(page_title=title,page_icon=favicon,layout=layout,initial_sidebar_state=sidebar_state,)
@@ -96,12 +100,39 @@ class HydraApp(object):
 
         if hide_streamlit_markers:
             self._hide_streamlit_markings = """
-                    <style>
-                    #MainMenu {visibility: hidden;}
-                    header {visibility: hidden;}
-                    footer {visibility: hidden;}
-                    </style>
-                """
+                <style>
+                div[data-testid="stToolbar"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+                }
+
+                div[data-testid="stDecoration"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+                }
+
+                div[data-testid="stStatusWidget"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+                }
+
+                #MainMenu {
+                visibility: hidden;
+                height: 0%;
+                }
+                header {
+                visibility: hidden;
+                height: 0%;
+                }
+                footer {
+                visibility: hidden;
+                height: 0%;
+                }
+                </style>
+            """
         else:
             self._hide_streamlit_markings = None
 
@@ -111,10 +142,10 @@ class HydraApp(object):
             preserve_state = 1
 
         if session_params is None:
-            self.session_state = SessionState.get(previous_app=None, selected_app=None, preserve_state=preserve_state, allow_access=0)
+            self.session_state = SessionState.get(previous_app=None, selected_app=None,other_nav_app=None, preserve_state=preserve_state, allow_access=0)
         else:
             if isinstance(session_params,Dict):
-                self.session_state = SessionState.get(previous_app=None, selected_app=None, preserve_state=preserve_state, allow_access=0,current_user=None,**session_params)
+                self.session_state = SessionState.get(previous_app=None, selected_app=None,other_nav_app=None, preserve_state=preserve_state, allow_access=0,current_user=None,**session_params)
 
 
     def add_loader_app(self, loader_app):
@@ -131,7 +162,7 @@ class HydraApp(object):
         self._loader_app = loader_app
 
 
-    def add_app(self, title, app, icon=None, is_login=False, is_home=False, logout_label=None):
+    def add_app(self, title, app, icon=None, is_login=False, is_home=False, logout_label=None, is_unsecure=False):
         """
         Adds a new application to this HydraApp
 
@@ -147,6 +178,8 @@ class HydraApp(object):
             Is this app used to login to the family of apps, this app will provide request response to gateway access to the other apps within the HydraApp.
         is_home: bool, False
             Is this the first 'page' that will be loaded, if a login app is provided, this is the page that will be kicked to upon successful login.
+        is_unsecure: bool, False
+            An app that can be run other than the login if using security, this is typically a sign-up app that can be run and then kick back to the login.
 
         """
         if self._use_navbar:
@@ -157,11 +190,16 @@ class HydraApp(object):
         else:
             self._nav_pointers[title] = '{} {}'.format(icon,title)
 
+        if is_unsecure:
+            self._unsecure_app = app
+
         if is_login:
             self._login_app = app
 
             if logout_label is not None:
                 self._logout_label = logout_label
+            else:
+                self._logout_label = 'Logout 🔒'
         elif is_home:
             self._home_app = title
             self._apps[title] = app
@@ -181,7 +219,13 @@ class HydraApp(object):
             if self.session_state.selected_app == None:
                 self._loader_app.run(self._apps[self._home_app])
             else:
-                self._loader_app.run(self._apps[self.session_state.selected_app])
+                if self.session_state.other_nav_app == None:
+                    self._loader_app.run(self._apps[self.session_state.selected_app])
+                else:
+                    self.session_state.selected_app = self.session_state.other_nav_app
+                    self.session_state.other_nav_app = None
+                    self._loader_app.run(self._apps[self.session_state.selected_app])
+
         except Exception as e:
             st.error('😭 Error triggered from app: **{}**, someone will be punished for your inconvenience, we humbly request you try again.'.format(self.session_state.selected_app))
             st.error('Details: {}'.format(e))
@@ -215,9 +259,7 @@ class HydraApp(object):
         #actually build the menu
         if complex_nav is None:
             if self._use_navbar:
-                menu_data = [{'label':self._navbar_pointers[app_name][0],'id':app_name, 'icon': self._navbar_pointers[app_name][1]} for app_name in self._apps.keys() if app_name != self._home_app]
-                #menu_idx = {app_name: idx for idx, app_name in enumerate(self._apps.keys())}
-                #menu_idx[None] = 0
+                menu_data = [{'label':self._navbar_pointers[app_name][0],'id':app_name, 'icon': self._navbar_pointers[app_name][1]} for app_name in self._apps.keys() if (app_name != self._home_app and app_name != self._logout_label)]
 
                 #Add logout button and kick to login action
                 if self._login_app is not None:
@@ -226,7 +268,13 @@ class HydraApp(object):
 
                     with self._nav_container:
                         self.session_state.previous_app = self.session_state.selected_app
-                        self.session_state.selected_app = nav_bar(menu_definition=menu_data,key="mainHydralitMenu",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label)
+                        nav_selected = nav_bar(menu_definition=menu_data,key="mainHydralitMenu",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label,sticky_nav=self._navbar_sticky)
+
+                        if self.session_state.other_nav_app == None:
+                            self.session_state.selected_app = nav_selected
+                        else:
+                            self._run_selected()
+
                         if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
                             self._clear_session_values()
 
@@ -240,7 +288,15 @@ class HydraApp(object):
                         self._clear_session_values()
 
                     with self._nav_container:
-                        self.session_state.selected_app = nav_bar(menu_definition=menu_data,home_name=self._home_app,override_theme=self._navbar_theme)
+                        nav_selected = nav_bar(menu_definition=menu_data,key="mainHydralitMenucont",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label,sticky_nav=self._navbar_sticky)
+
+                        if self.session_state.other_nav_app == None:                           
+                            self.session_state.selected_app = nav_selected
+                        else:
+                            self._run_selected()
+
+                        if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
+                            self._clear_session_values()
             else:
                 for i, app_name in enumerate(self._apps.keys()):
                     if self._nav_horizontal:
@@ -252,8 +308,8 @@ class HydraApp(object):
                         self.session_state.previous_app = self.session_state.selected_app
                         self.session_state.selected_app = app_name
 
-                        if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
-                            self._clear_session_values()
+                if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
+                    self._clear_session_values()
 
                             #Add logout button and kick to login action
                 if self._login_app is not None:
@@ -269,39 +325,94 @@ class HydraApp(object):
                             self.session_state.allow_access = 0
                             st.experimental_rerun()
         else:
-            for i, nav_section_name in enumerate(complex_nav.keys()):
-                
-                if self._nav_horizontal:
-                    nav_section_root = nav_slots[i]
-                else:
-                    nav_section_root = nav_slots
+            if self._use_navbar:
+                menu_data = []
+                for i, nav_section_name in enumerate(complex_nav.keys()):
+                    menu_item = None
+                    if len(complex_nav[nav_section_name]) == 1:
+                        if (complex_nav[nav_section_name][0] != self._home_app and complex_nav[nav_section_name][0] != self._logout_label):
+                            menu_item = {'label':self._navbar_pointers[complex_nav[nav_section_name][0]][0],'id':complex_nav[nav_section_name][0], 'icon': self._navbar_pointers[complex_nav[nav_section_name][0]][1]}
+                    else:
+                        submenu_items = []
+                        for nav_item in complex_nav[nav_section_name]:
+                            if (nav_item != self._home_app and nav_item != self._logout_label):
+                                menu_item = {'label':self._navbar_pointers[nav_item][0],'id':nav_item, 'icon': self._navbar_pointers[nav_item][1]}
+                                submenu_items.append(menu_item)
 
-                if len(complex_nav[nav_section_name]) == 1:
-                    nav_section = nav_section_root.container()
-                else:
-                    nav_section = nav_section_root.expander(label=nav_section_name,expanded=False)
+                        if len(submenu_items) > 0:
+                            menu_item = {'label': nav_section_name,'id':nav_section_name, 'submenu':submenu_items}
 
-                for nav_item in complex_nav[nav_section_name]:
-                    if nav_section.button(label=self._nav_pointers[nav_item]):
+                    if menu_item is not None:
+                        menu_data.append(menu_item)
+
+                #Add logout button and kick to login action
+                if self._login_app is not None:
+                    if self.session_state.current_user is not None:
+                        self._logout_label = '{} : {}'.format(self.session_state.current_user.capitalize(),self._logout_label)
+
+                    with self._nav_container:
                         self.session_state.previous_app = self.session_state.selected_app
-                        self.session_state.selected_app = nav_item
-
+                        nav_selected = nav_bar(menu_definition=menu_data,key="mainHydralitMenuComplex",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label,sticky_nav=self._navbar_sticky)
+                        if self.session_state.other_nav_app == None:
+                            self.session_state.selected_app = nav_selected
+                        else:
+                            self._run_selected()
+                            
                         if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
-                            self._clear_session_values()   
+                            self._clear_session_values()
 
-            #Add logout button and kick to login action
-            if self._login_app is not None:
-                if self.session_state.current_user is not None:
-                    self._logout_label = '{} : {}'.format(self.session_state.current_user.capitalize(),self._logout_label)
-
-                if self._nav_horizontal:
-                    if nav_slots[-1].button(label=self._logout_label):
+                    # user clicked logout
+                    if self.session_state.selected_app == self._logout_label:
                         self.session_state.allow_access = 0
                         st.experimental_rerun()
                 else:
-                    if nav_slots.button(label=self._logout_label):
-                        self.session_state.allow_access = 0
-                        st.experimental_rerun()
+                    self.session_state.previous_app = self.session_state.selected_app
+                    if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
+                        self._clear_session_values()
+
+                    with self._nav_container:
+                        nav_selected = nav_bar(menu_definition=menu_data,key="mainHydralitMenuComplexcont",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label,sticky_nav=self._navbar_sticky)
+                        if self.session_state.other_nav_app == None:
+                            self.session_state.selected_app = nav_selected
+                        else:
+                            self._run_selected()
+                            
+                        if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
+                            self._clear_session_values()
+            else:
+                for i, nav_section_name in enumerate(complex_nav.keys()):
+                    
+                    if self._nav_horizontal:
+                        nav_section_root = nav_slots[i]
+                    else:
+                        nav_section_root = nav_slots
+
+                    if len(complex_nav[nav_section_name]) == 1:
+                        nav_section = nav_section_root.container()
+                    else:
+                        nav_section = nav_section_root.expander(label=nav_section_name,expanded=False)
+
+                    for nav_item in complex_nav[nav_section_name]:
+                        if nav_section.button(label=self._nav_pointers[nav_item]):
+                            self.session_state.previous_app = self.session_state.selected_app
+                            self.session_state.selected_app = nav_item
+
+                if self.cross_session_clear and self.session_state.previous_app != self.session_state.selected_app and not self.session_state.preserve_state:
+                    self._clear_session_values()   
+
+                #Add logout button and kick to login action
+                if self._login_app is not None:
+                    if self.session_state.current_user is not None:
+                        self._logout_label = '{} : {}'.format(self.session_state.current_user.capitalize(),self._logout_label)
+
+                    if self._nav_horizontal:
+                        if nav_slots[-1].button(label=self._logout_label):
+                            self.session_state.allow_access = 0
+                            st.experimental_rerun()
+                    else:
+                        if nav_slots.button(label=self._logout_label):
+                            self.session_state.allow_access = 0
+                            st.experimental_rerun()
 
 
     def run(self,complex_nav=None):
@@ -348,6 +459,9 @@ class HydraApp(object):
             self._build_nav_menu(complex_nav)
 
             self._run_selected()
+        elif self.session_state.allow_access < 0:
+            self.session_state.current_user = 'guest'
+            self._unsecure_app.run()
         else:
             self.session_state.current_user = None
             self._login_app.run()

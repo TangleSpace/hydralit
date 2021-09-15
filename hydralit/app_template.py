@@ -89,8 +89,13 @@ class HydraHeadApp(ABC):
             div = Div(text=html)
             st.bokeh_chart(div)
         else:        
-            self.session_state.selected_app = redirect_target_app
-            st.experimental_rerun()
+            query_params = st.experimental_get_query_params()
+            if 'selected' in query_params:
+                self.session_state.other_nav_app = (query_params['selected'])[0]
+                st.experimental_rerun()
+            else:
+                self.session_state.other_nav_app = redirect_target_app
+                st.experimental_rerun()
 
 
     def download_button(self,object_to_download, download_filename, button_text, use_compression=False,parent_container=None,pickle_it=False, css_formatting=None, **kwargs):

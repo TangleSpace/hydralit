@@ -68,7 +68,12 @@ class HydraHeadApp(ABC):
 
         """
 
-        return int(self.session_state.allow_access), str(self.session_state.current_user)
+        username = None
+
+        if hasattr(self.session_state,'current_user'):
+            username = str(self.session_state.current_user)
+
+        return int(self.session_state.allow_access), username
 
 
     def do_redirect(self,redirect_target_app=None):

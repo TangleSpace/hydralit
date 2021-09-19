@@ -244,8 +244,18 @@ import apps
 if __name__ == '__main__':
     over_theme = {'txc_inactive': '#FFFFFF'}
     #this is the host application, we add children to it and that's it!
-    app = HydraApp(title='Secure Hydralit Data Explorer',favicon="🐙",nav_horizontal=True,hide_streamlit_markers=True,use_navbar=True, navbar_sticky=True,navbar_theme=over_theme)
-  
+    app = HydraApp(
+        title='Secure Hydralit Data Explorer',
+        favicon="🐙",
+        hide_streamlit_markers=False,
+        #add a nice banner, this banner has been defined as 5 sections with spacing defined by the banner_spacing array below.
+        use_banner_images=["./resources/hydra.png",None,{'header':"<h1 style='text-align:center;padding: 0px 0px;color:black;font-size:200%;'>Secure Hydralit Explorer</h1><br>"},None,"./resources/lock.png"], 
+        banner_spacing=[5,30,60,30,5],
+        use_navbar=True, 
+        navbar_sticky=False,
+        navbar_theme=over_theme
+    )
+
     #Home button will be in the middle of the nav list now
     app.add_app("Home", icon="🏠", app=apps.HomeApp(title='Home'),is_home=True)
 
@@ -266,27 +276,66 @@ if __name__ == '__main__':
     #optional logout label, can be blank for something nicer!
     app.add_app("Login", apps.LoginApp(title='Login'),is_login=True) 
 
-    # If the menu is cluttered, just rearrange it into sections!
-    # completely optional, but if you have too many entries, you can make it nicer by using accordian menus
-    complex_nav = {
-        'Home': ['Home'],
-        'Intro 🏆': ['Cheat Sheet',"Solar Mach"],
-        'Hotstepper 🔥': ["Sequency Denoising","Sequency (Secure)"],
-        'Clustering': ["Uber Pickups"],
-        'NLP': ["Spacy NLP"],
-    }
+    #specify a custom loading app for a custom transition between apps, this includes a nice custom spinner
+    app.add_loader_app(apps.MyLoadingApp(delay=5))
+    #app.add_loader_app(apps.QuickLoaderApp())
 
+    #we can inject a method to be called everytime a user logs out
+    @app.logout_callback
+    def mylogout_cb():
+        print('I was called from Hydralit at logout!')
 
-    #add a custom loader for app transitions
-    #app.add_loader_app(apps.MyLoadingApp())
+    #we can inject a method to be called everytime a user logs in
+    @app.login_callback
+    def mylogin_cb():
+        print('I was called from Hydralit at login!')
+
+    #-----if we want to auto login a guest but still have a secure app, we can assign a guest account and go straight in
+    #check if this is first open
+    user_access_level, username = app.check_access()
+    if user_access_level == 0 and username is None:
+        app.set_access(1, 'guest')
+    #--------------------------------------------------------------------------------------------------------------------
 
     #if the menu is looking shit, use some sections
-    st.markdown("<h2 style='text-align: center;'>This example was written using the <a href = https://github.com/TangleSpace/hydralit>Hydralit</a> library. Sourecode for this example is located <a href = https://github.com/TangleSpace/hydralit-example>here</a>.</h2>",unsafe_allow_html=True)
-  
+    #check user access level to determine what should be shown on the menu
+    user_access_level, username = app.check_access()
 
+    # If the menu is cluttered, just rearrange it into sections!
+    # completely optional, but if you have too many entries, you can make it nicer by using accordian menus
+    if user_access_level > 1:
+        complex_nav = {
+            'Home': ['Home'],
+            'Intro 🏆': ['Cheat Sheet',"Solar Mach"],
+            'Hotstepper 🔥': ["Sequency Denoising","Sequency (Secure)"],
+            'Clustering': ["Uber Pickups"],
+            'NLP': ["Spacy NLP"],
+        }
+    elif user_access_level == 1:
+        complex_nav = {
+            'Home': ['Home'],
+            'Intro 🏆': ['Cheat Sheet',"Solar Mach"],
+            'Hotstepper 🔥': ["Sequency Denoising"],
+            'Clustering': ["Uber Pickups"],
+            'NLP': ["Spacy NLP"],
+        }
+    else:
+        complex_nav = {
+            'Home': ['Home'],
+        }
+
+  
     #and finally just the entire app and all the children.
     app.run(complex_nav)
+
+    #print user movements and current login details used by Hydralit
+    user_access_level, username = app.check_access()
+    prev_app, curr_app = app.get_nav_transition()
+
+    print(prev_app,'- >', curr_app)
+    print(int(user_access_level),'- >', username)
 ```
+
 You can try it out by running the two sample applications with their children that are located in the [hydralit-example repository](https://github.com/TangleSpace/hydralit-example).
 ```bash
 hydralit_example> pip install -r requirements.txt

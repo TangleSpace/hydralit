@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'Hydralit'
 copyright = '2021, Jackson Storm'
 author = 'Jackson Storm'
-release = '1.0.0'
+release = '1.0.8'
 
 extensions = [
     'matplotlib.sphinxext.plot_directive',

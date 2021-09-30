@@ -27,16 +27,21 @@ When converting existing applications, you can effectively put all the existing 
 Hydralit can be installed from PyPI:
 
 ```bash
-pip install hydralit
+pip install -U hydralit
 ```
 
+## NOTE
+Due to the Streamlit execution model, the ability to use internal nav links from a child app is one-shot when using the navbar. This means that the internal link will redirect to the child, however if a script rerun request is made within the child app (changing the value of a widget for example), the nav will bounce back to the calling app. You can disable the navbar and the Streamlit core components nav menu will appear and the internal links will work as expected.
+
 ## Latest features
+ - Can set auto login with guest account when using a secure app
  - Support for a non-secure app in a secure app (like a signup app)
  - Full integration with the Hydralit Navbar that now supports complex nav!
  - some bug fixes where app to app redirect was inconsistant
  - Banners
  - Compression behind download button
  - Hydralit Navbar
+ - Can turn off the navbar animation now! (must be using Hydralit_components >=1.0.4)
 
 
 Complex and sticky nav with no Streamlit markers is as easy as a couple of parameters in the Hydralit constructor.

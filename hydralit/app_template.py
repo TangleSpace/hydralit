@@ -25,7 +25,7 @@ class HydraHeadApp(ABC):
         pass
 
 
-    def assign_session(self,session_state):
+    def assign_session(self,session_state, parent_app):
         """
         This method is called when the app is added to a Hydralit application to gain access to the global session state.
 
@@ -37,19 +37,22 @@ class HydraHeadApp(ABC):
         """
 
         self.session_state = session_state
+        self.parent_app = parent_app
 
-    def set_access(self,allow_access=0,access_user=''):
+    def set_access(self,allow_access=0,access_user='', cache_access=False):
         """
         Set the access permission and the assigned username for that access during the current session.
-
         Parameters
         -----------
         allow_access: int, 0
             Value indicating if access has been granted, can be used to create levels of permission.
         access_user: str, None
             The username the access has been granted to for this session.
-
+        cache_access: bool, False
+            Save these access details to a browser cookie so the user will auto login when they visit next time.
         """
+
+        #self.parent_app.set_access(allow_access,access_user,cache_access)
 
         #Set the global access flag
         self.session_state.allow_access = allow_access
@@ -87,19 +90,19 @@ class HydraHeadApp(ABC):
 
         """
 
+        self._sneaky_redirect(redirect_target_app=redirect_target_app)
+
+
+    def _sneaky_redirect(self,redirect_target_app=None):
+
         if redirect_target_app is not None and validators.url(redirect_target_app):
             js = "window.open('{}')".format(redirect_target_app)
             html = '<img src onerror="{}">'.format(js)
             div = Div(text=html)
             st.bokeh_chart(div)
-        else:        
-            query_params = st.experimental_get_query_params()
-            if 'selected' in query_params:
-                self.session_state.other_nav_app = (query_params['selected'])[0]
-                st.experimental_rerun()
-            else:
-                self.session_state.other_nav_app = redirect_target_app
-                st.experimental_rerun()
+        else:
+            self.session_state.other_nav_app = redirect_target_app
+            st.experimental_rerun()
 
 
     def download_button(self,object_to_download, download_filename, button_text, use_compression=False,parent_container=None,pickle_it=False, css_formatting=None, **kwargs):

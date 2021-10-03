@@ -1,18 +1,18 @@
 from typing import Dict
 import streamlit as st
 import jwt
-#import extra_streamlit_components as stx
 from datetime import datetime, timedelta, timezone
 from hydralit.sessionstate import SessionState
 from hydralit.loading_app import LoadingApp
 import hydralit_components as hc
+from hydralit.wrapper_class import Templateapp
 
 class HydraApp(object):
     """
     Class to create a host application for combining multiple streamlit applications.
     """
     
-    def __init__(self, title='Streamlit MultiApp', nav_container=None, nav_horizontal=True,layout='wide', favicon = "🧊",use_navbar=True,navbar_theme=None,navbar_sticky=True,use_cookie_cache=True,sidebar_state = 'auto',navbar_animation=False,allow_url_nav=False, hide_streamlit_markers = False,use_banner_images=None,banner_spacing=None, clear_cross_app_sessions=True, session_params=None):
+    def __init__(self, title='Hydralit Apps', nav_container=None, nav_horizontal=True,layout='wide', favicon = "🧊",use_navbar=True,navbar_theme=None,navbar_sticky=False,use_cookie_cache=True,sidebar_state = 'auto',navbar_animation=True,allow_url_nav=False, hide_streamlit_markers = False,use_banner_images=None,banner_spacing=None, clear_cross_app_sessions=True, session_params=None):
         """
         A class to create an Multi-app Streamlit application. This class will be the host application for multiple applications that are added after instancing.
         The secret saurce to making the different apps work together comes from the use of a global session store that is shared with any HydraHeadApp that is added to the parent HydraApp.
@@ -76,6 +76,7 @@ class HydraApp(object):
         self._allow_url_nav = allow_url_nav
         self._navbar_animation = navbar_animation
         self._navbar_sticky = navbar_sticky
+        self._nav_item_count = 0
         self._use_navbar = use_navbar
         self._navbar_theme = navbar_theme
         self._banners = use_banner_images
@@ -100,7 +101,6 @@ class HydraApp(object):
             st.set_page_config(page_title=title,page_icon=favicon,layout=layout,initial_sidebar_state=sidebar_state,)
         except:
             pass
-            #print('page config has already been called.\nYou appear to be using a container that has already called st.set_page_config.')
 
         self._nav_horizontal = nav_horizontal
 
@@ -193,6 +193,7 @@ class HydraApp(object):
     def add_app(self, title, app, icon=None, is_login=False, is_home=False, logout_label=None, is_unsecure=False):
         """
         Adds a new application to this HydraApp
+
         Parameters
         ----------
         title: str
@@ -208,6 +209,7 @@ class HydraApp(object):
         is_unsecure: bool, False
             An app that can be run other than the login if using security, this is typically a sign-up app that can be run and then kick back to the login.
         """
+
         if self._use_navbar:
             self._navbar_pointers[title] = [title,icon]
         
@@ -232,8 +234,8 @@ class HydraApp(object):
         else:
             self._apps[title] = app
             #grab the first added app as the home is nothing is provided
-            if self._home_app is None:
-                self._home_app = next(iter(self._apps.keys()))
+            # if self._home_app is None:
+            #     self._home_app = next(iter(self._apps.keys()))
 
 
         self._nav_item_count = int(self._login_app is not None) + len(self._apps.keys())
@@ -625,8 +627,11 @@ class HydraApp(object):
                     self.session_state.logged_in = True
                     self._login_callback()
 
-            self._build_nav_menu()
-            self._run_selected()
+            if self._nav_item_count == 0:
+                self._default()
+            else:
+                self._build_nav_menu()
+                self._run_selected()
         elif self.session_state.allow_access < self._no_access_level:
             self.session_state.current_user = self._guest_name
             self._unsecure_app.run()
@@ -637,7 +642,87 @@ class HydraApp(object):
             self._login_app.run()
 
 
+    def _default(self):
+        st.header('Welcome to Hydralit')
+        st.write('Thank you for your enthusiasum and looking to run the HydraApp as quickly as possible, for maximum effect, please add a child app by one of the methods below.')
+
+        st.write('For more information, please see the instructions on the home page [Hydralit Home Page](https://github.com/TangleSpace/hydralit)')
+
+        st.write('Method 1 (easiest)')
+
+        st.code("""
+#when we import hydralit, we automatically get all of Streamlit
+import hydralit as hy
+
+app = hy.HydraApp(title='Simple Multi-Page App')
+
+@app.addapp()
+def my_cool_function():
+  hy.info('Hello from app 1')
+        """
+        )
+
+        st.write('Method 2 (more fun)')
+
+        st.code("""
+from hydralit import HydraHeadApp
+import streamlit as st
+
+
+#create a child app wrapped in a class with all your code inside the run() method.
+class CoolApp(HydraHeadApp):
+
+    def run(self):
+        st.info('Hello from cool app 1')
+
+
+
+#when we import hydralit, we automatically get all of Streamlit
+import hydralit as hy
+
+app = hy.HydraApp(title='Simple Multi-Page App')
+
+app.add_app("My Cool App", icon="📚", app=CoolApp(title="Cool App"))
+        """
+        )
+
+        st.write('Once we have added atleast one child application, we just run the parent app!')
+
+        st.code("""
+app.run()
+        """)
+
+
+        st.write('For example you get can going super quick with a couple of functions and a call to Hydralit App run().')
+
+        st.code("""
+    #when we import hydralit, we automatically get all of Streamlit
+    import hydralit as hy
+
+    app = hy.HydraApp(title='Simple Multi-Page App')
+
+    @app.addapp(is_home=True)
+    def my_home():
+    hy.info('Hello from Home!')
+
+    @app.addapp()
+    def app2():
+    hy.info('Hello from app 2')
+
+    @app.addapp(title='The Best', icon="🥰")
+    def app3():
+    hy.info('Hello from app 3, A.K.A, The Best 🥰')
+
+    #Run the whole lot, we get navbar, state management and app isolation, all with this tiny amount of work.
+    app.run()
+        """)
+
     def logout_callback(self,func):
+        """
+        This is a decorate to add a function to be run when a user is logged out.
+
+        """
+
         def my_wrap(*args, **kwargs):
             return func(*args, **kwargs)
 
@@ -646,8 +731,42 @@ class HydraApp(object):
 
 
     def login_callback(self,func):
+        """
+        This is a decorate to add a function to be run when a user is first logged in.
+
+        """
+
         def my_wrap(*args, **kwargs):
             return func(*args, **kwargs)
 
         self._login_callback = my_wrap
         return my_wrap
+
+
+
+    def addapp(self,title=None,icon=None, is_home=False):
+        """
+        This is a decorator to quickly add a function as a child app in a style like a Flask route.
+
+        You can do everything you can normally do when adding a class based HydraApp to the parent, except you can not add a login or unsecure app using this method, as
+        those types of apps require functions provided from inheriting from HydraAppTemplate.
+
+        Parameters
+        ----------
+        title: str
+            The title of the app. This is the name that will appear on the menu item for this app.
+        icon: str
+            The icon to use on the navigation button, this will be appended to the title to be used on the navigation control.
+        is_home: bool, False
+            Is this the first 'page' that will be loaded, if a login app is provided, this is the page that will be kicked to upon successful login.
+        """
+       
+        def decorator(func):
+
+            wrapped_app = Templateapp(mtitle=title,run_method=func)
+
+            self.add_app(title=wrapped_app.title,app=wrapped_app,icon=icon, is_home=is_home)
+
+            return func
+
+        return decorator

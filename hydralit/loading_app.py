@@ -1,4 +1,5 @@
 import streamlit as st
+from hydralit_components import HyLoader, Loaders
 from hydralit.app_template import HydraHeadApp
 
 
@@ -7,11 +8,14 @@ class LoadingApp(HydraHeadApp):
     def run(self,app_target):
 
         try:
-            with st.spinner("🔨 now beating your request into submission...."):
+            app_title = ''
+            if hasattr(app_target,'title'):
+                app_title = app_target.title
+
+            with HyLoader("Now loading {}".format(app_title), loader_name=Loaders.standard_loaders,index=[3,0,5]):
                 app_target.run()
       
         except Exception as e:
             st.image("./resources/failure.png",width=100,)
-            st.error('An error has occurred, someone will be punished for your inconvenience, we humbly request you try again.')
             st.error('Error details: {}'.format(e))
 

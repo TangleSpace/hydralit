@@ -23,17 +23,39 @@ When converting existing applications, you can effectively put all the existing 
         <img src="http://img.shields.io/:streamlit->=0.86.0-blue.svg?style=flat-square"></a>
 </p>
 
-## Installing Hydralit
+## Installation
 Hydralit can be installed from PyPI:
 
 ```bash
 pip install -U hydralit
 ```
 
-## NOTE
-Due to the Streamlit execution model, the ability to use internal nav links from a child app is one-shot when using the navbar. This means that the internal link will redirect to the child, however if a script rerun request is made within the child app (changing the value of a widget for example), the nav will bounce back to the calling app. You can disable the navbar and the Streamlit core components nav menu will appear and the internal links will work as expected.
+<h1><a href="https://hydralit-secure-sample.herokuapp.com/">You can see what's possible using Hydralit here!</a></h1>
+
+# Lightning Example
+ ```python
+#when we import hydralit, we automatically get all of Streamlit
+import hydralit as hy
+
+app = hy.HydraApp(title='Simple Multi-Page App')
+
+@app.addapp()
+def my_home():
+  hy.info('Hello from app1')
+
+@app.addapp()
+def app2():
+  hy.info('Hello from app 2')
+
+
+#Run the whole lot, we get navbar, state management and app isolation, all with this tiny amount of work.
+app.run()
+ ```
+
+
 
 ## Latest features
+ - Added Flask like decorators to convert any function into a child app (see example below)
  - Can set auto login with guest account when using a secure app
  - Support for a non-secure app in a secure app (like a signup app)
  - Full integration with the Hydralit Navbar that now supports complex nav!
@@ -43,17 +65,55 @@ Due to the Streamlit execution model, the ability to use internal nav links from
  - Hydralit Navbar
  - Can turn off the navbar animation now! (must be using Hydralit_components >=1.0.4)
 
+## NOTE
+Due to the Streamlit execution model, the ability to use internal nav links from a child app is one-shot when using the navbar. This means that the internal link will redirect to the child, however if a script rerun request is made within the child app (changing the value of a widget for example), the nav will bounce back to the calling app. You can disable the navbar and the Streamlit core components nav menu will appear and the internal links will work as expected.
 
-Complex and sticky nav with no Streamlit markers is as easy as a couple of parameters in the Hydralit constructor.
+
+## Complex and sticky nav with no Streamlit markers is as easy as a couple of parameters in the Hydralit constructor.
  ```python
 app = HydraApp(title='Secure Hydralit Data Explorer',favicon="🐙",hide_streamlit_markers=True,use_navbar=True, navbar_sticky=True)
  ```
 
 ## Now powered by [Hydralit Components](https://github.com/TangleSpace/hydralit_components).
-Currently the complex collapsable menu format is not supported by Hydralit Navbar, however if you can live without it for now, you will be rewarded with an animated and responsive navbar.
+The Hydralit Navbar is fully integrated, theme aware and animated (you can turn it off if you like), just add your child apps and go, the navbar will appear automatically.
+# Navbar - Responsive, theme aware and animated.
 <p align="center">
 <img src="https://raw.githubusercontent.com/tanglespace/hydralit_components/master/resources/hydralit_navbar.gif" title="Quick Example" alt="Quick Example", width="60%" height="100%">
 </p>
+
+# Spinners and Loaders
+Out of the box you get a nice loader/spinner when navigating between apps/pages. You can also create your own loader app and completely customise every part of how it looks and when it loads, even creating different effects depending on the target application. See the [Hydralit secure example code](https://github.com/TangleSpace/hydralit-example/blob/main/apps/myloading_app.py) to see what is possible.
+
+<p align="center">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/standard_loaders.gif?raw=true" title="HyLoaders" alt="HyLoaders", width="45%" height="45%">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/pretty_loaders.gif?raw=true" title="HyLoaderspretty" alt="HyLoaders", width="45%" height="45%">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/pulse_bars.gif?raw=true" title="HyLoaderspretty" alt="HyLoaders", width="100%" height="60%">
+
+
+## Quick Start
+If you have some functions and want them to run like seperate pages, you can quickly get going with a Flask style decorator over your functions.
+ ```python
+#when we import hydralit, we automatically get all of Streamlit
+import hydralit as hy
+
+app = hy.HydraApp(title='Simple Multi-Page App')
+
+@app.addapp(is_home=True)
+def my_home():
+  hy.info('Hello from Home!')
+
+@app.addapp()
+def app2():
+  hy.info('Hello from app 2')
+
+@app.addapp(title='The Best', icon="🥰")
+def app3():
+  hy.info('Hello from app 3, A.K.A, The Best 🥰')
+
+#Run the whole lot, we get navbar, state management and app isolation, all with this tiny amount of work.
+app.run()
+ ```
+
 
 ### Examples
 You can try it out by running the two sample applications with their children that are located in the [hydralit-example repository](https://github.com/TangleSpace/hydralit-example).
@@ -64,9 +124,9 @@ hydralit_example> streamlit run secure.app
 ```
 
 <h1><a href="https://hydralit-secure-sample.herokuapp.com/">You can see this example running here</a></h1>
-<img src="https://github.com/TangleSpace/hydralit-example/raw/main/docs/images/hydralit-secure-example.gif" alt="example" width="80%"/>
 
-### Converting existing applications
+
+# Converting existing applications
 This code sample comes directly from the [Streamlit example data explorer](https://docs.streamlit.io/en/stable/tutorial/create_a_data_explorer_app.html#let-s-put-it-all-together)
 ```python
 import streamlit as st
@@ -222,7 +282,8 @@ if __name__ == '__main__':
     app.run()
 ```
 
-#### That's it!
+### Or you could use the decorator method shown in the Lightning example and simply wrap your functions, both ways work, you can get access to more controls with the class method as the template class allows access to the Hydralit internal state for access and navigation information.
+
 This super simple example is made of 3 files.
 ```
 hydralit sample project

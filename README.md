@@ -2,9 +2,9 @@
  # **Hydralit** <img src="https://github.com/TangleSpace/hydralit/raw/main/docs/images/hydra.png" alt="hydra" width="50"/>
 The Hydralit package is a wrapping and template project to combine multiple independant (or somewhat dependant) Streamlit applications into a multi-page application.
 
-Currently the project implements a host application HydraApp and each child application simply needs to be a class deriving from the HydraHeadApp class and implement a single, simple method, run().
+Currently the project implements a host application HydraApp and each child application simply needs to be either a class deriving from the HydraHeadApp class and implementing a single, simple method, run() for maximum profit, or you can use a Flask style decorator on your functions to add them directly as seperate Streamlit pages.
 
-When converting existing applications, you can effectively put all the existing code inside the run() method and create a wrapper class deriving from HydraHeadApp. Then you create the parent app as an instance of HydraApp, add your child apps to it (see examples [app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/app.py") and [secure_app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/secure_app.py")) and with only a few lines of code everything will magically come together.
+When converting existing applications, you can effectively put all the existing code inside the run() method and create a wrapper class deriving from HydraHeadApp or put a decorator over the function. Then you create the parent app as an instance of HydraApp, add your child apps to it (see example [secure_app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/secure_app.py")) and with only a few lines of code everything will magically come together.
 
 ## **Hydralit >=1.0.3 now requires a minimum version of Streamlit >=0.86.x to fully support the recently migrated beta containers, if using Streamlit <=0.85.x please continue to use Hydralit <=1.0.2**
 
@@ -51,6 +51,11 @@ def app2():
 #Run the whole lot, we get navbar, state management and app isolation, all with this tiny amount of work.
 app.run()
  ```
+ 
+ This tiny amount of code creates a menu and pages that render when the target function is called by selecting it from the menu.
+ <p align="center">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/baby_demo.gif?raw=true" title="Quick Example" alt="Quick Example", width="100%" height="100%">
+</p>
 
 
 
@@ -113,6 +118,10 @@ def app3():
 #Run the whole lot, we get navbar, state management and app isolation, all with this tiny amount of work.
 app.run()
  ```
+This tiny amount of code creates a nice custom multi-page app as below.
+ <p align="center">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/quick_demo.gif?raw=true" title="Quick Example" alt="Quick Example", width="100%" height="100%">
+</p>
 
 
 ### Examples
@@ -356,13 +365,10 @@ if __name__ == '__main__':
     def mylogin_cb():
         print('I was called from Hydralit at login!')
 
-    #-----if we want to auto login a guest but still have a secure app, we can assign a guest account and go straight in
-    #check if this is first open
-    user_access_level, username = app.check_access()
-    if user_access_level == 0 and username is None:
-        app.set_access(1, 'guest')
-    #--------------------------------------------------------------------------------------------------------------------
+    #if we want to auto login a guest but still have a secure app, we can assign a guest account and go straight in
+    app.enable_guest_access()
 
+    #--------------------------------------------------------------------------------------------------------------------
     #if the menu is looking shit, use some sections
     #check user access level to determine what should be shown on the menu
     user_access_level, username = app.check_access()
@@ -394,12 +400,13 @@ if __name__ == '__main__':
     #and finally just the entire app and all the children.
     app.run(complex_nav)
 
-    #print user movements and current login details used by Hydralit
+    #(DEBUG) print user movements and current login details used by Hydralit
+    #---------------------------------------------------------------------
     user_access_level, username = app.check_access()
     prev_app, curr_app = app.get_nav_transition()
-
     print(prev_app,'- >', curr_app)
     print(int(user_access_level),'- >', username)
+    #---------------------------------------------------------------------
 ```
 
 You can try it out by running the two sample applications with their children that are located in the [hydralit-example repository](https://github.com/TangleSpace/hydralit-example).

@@ -16,6 +16,6 @@ class LoadingApp(HydraHeadApp):
                 app_target.run()
       
         except Exception as e:
-            st.image("./resources/failure.png",width=100,)
+            # st.image("./resources/failure.png",width=100,)
             st.error('Error details: {}'.format(e))
 

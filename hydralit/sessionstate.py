@@ -1,4 +1,4 @@
-import streamlit.report_thread as ReportThread
+from streamlit.script_run_context import get_script_run_ctx
 from streamlit.server.server import Server
 
 
@@ -57,7 +57,7 @@ class SessionState(object):
         """
 
         # Hack to get the session object from Streamlit.
-        session_id = ReportThread.get_report_ctx().session_id
+        session_id = get_script_run_ctx().session_id
         session_info = Server.get_current()._get_session_info(session_id)
 
         if session_info is None:

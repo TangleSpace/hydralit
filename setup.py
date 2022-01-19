@@ -30,7 +30,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.9',
     ],
     install_requires=[
-        'streamlit >=0.88',
+        'streamlit >= 1.4.0',
         'compress_pickle',
         'hydralit_components>=1.0.4',
         'validators',

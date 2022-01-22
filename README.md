@@ -8,6 +8,8 @@ When converting existing applications, you can effectively put all the existing 
 
 ## **Hydralit >=1.0.3 now requires a minimum version of Streamlit >=0.86.x to fully support the recently migrated beta containers, if using Streamlit <=0.85.x please continue to use Hydralit <=1.0.2**
 
+## **Hydralit now fully supports all versions of Streamlit, including 1.4.0, despite the odd changes made in version 1.4.0 that completely broke Hydralit.**
+
 <br>
 <p align="center">
 	<a href="https://pepy.tech/project/hydralit/" alt="PyPI downloads">
@@ -58,8 +60,27 @@ app.run()
 </p>
 
 
+## Latest features (version 1.0.11)
+ - Fully supports all versions of Streamlit, including 1.4.0 (big thanks to [oggers](https://github.com/oggers) for some amazing support!).
+ - Fixed the missing error handling bug, now all exceptions are raised to be handled however the user chooses instead of capturing and displaying an image. (big thanks to [rambam613](https://github.com/rambam613) for finding and fixing this bug, very nice!).
+ - Can completely customise the Home and Logout menu entries, title and icon data from the add_app entry will be used for these items now as well as the existing.
+<p align="center">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/customised_navbar.PNG?raw=true" title="Navbar" alt="Navbar", width="100%" height="100%">
+</p>
 
-## Latest features
+ - Cleaned up the formatting when running in sticky and hiding Streamlit headers and footers, yes, they will come back now when using the navbar.
+ - Removed the background effort for all loader animations (everyone hated this).
+ - Smaller, sleeker navbar, including a much nicer non-animated mode.
+  <p align="center">
+<img src="https://github.com/TangleSpace/hydralit_components/blob/main/resources/non-animated_navbar.PNG?raw=true" title="Navbar" alt="Navbar", width="100%" height="100%">
+</p>
+
+ - Full offline support for Font Awesome and Bootstrap icons for navbar entries, as well as all emojis.
+ - Improved performance with some refactoring of the session and transition code, apps load faster now.
+
+<br><br
+
+## Version 1.0.10 features
  - Added Flask like decorators to convert any function into a child app (see example below)
  - Can set auto login with guest account when using a secure app
  - Support for a non-secure app in a secure app (like a signup app)

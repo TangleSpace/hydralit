@@ -1,6 +1,13 @@
-import streamlit.report_thread as ReportThread
-from streamlit.server.server import Server
+import streamlit
+st_ver = int(streamlit.__version__.replace('.',''))
 
+if st_ver < 140:
+    import streamlit.report_thread as ReportThread
+    from streamlit.server.server import Server
+else:
+    from streamlit.script_run_context import get_script_run_ctx
+    from streamlit.server.server import Server
+    
 
 #All credit goes to TVST https://gist.github.com/tvst/036da038ab3e999a64497f42de966a92 for this very good sessionstate class implementation
 
@@ -56,8 +63,13 @@ class SessionState(object):
         'Mary'
         """
 
+        if st_ver < 140:
+            session_id = ReportThread.get_report_ctx().session_id
+        else:
+            session_id = get_script_run_ctx().session_id
+
         # Hack to get the session object from Streamlit.
-        session_id = ReportThread.get_report_ctx().session_id
+        #session_id = self._get_session_id()
         session_info = Server.get_current()._get_session_info(session_id)
 
         if session_info is None:
@@ -72,4 +84,4 @@ class SessionState(object):
 
         return this_session._custom_session_state
 
-    
+

@@ -6,6 +6,7 @@ class Templateapp(HydraHeadApp):
     def __init__(self, mtitle = None,run_method=None, **kwargs):
         self.__dict__.update(kwargs)
         self.title = mtitle
+        
 
         if callable(run_method):
             self._run = run_method

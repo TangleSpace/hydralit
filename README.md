@@ -6,9 +6,16 @@ Currently the project implements a host application HydraApp and each child appl
 
 When converting existing applications, you can effectively put all the existing code inside the run() method and create a wrapper class deriving from HydraHeadApp or put a decorator over the function. Then you create the parent app as an instance of HydraApp, add your child apps to it (see example [secure_app.py]("https://github.com/TangleSpace/hydralit-example/blob/main/secure_app.py")) and with only a few lines of code everything will magically come together.
 
-## **Hydralit >=1.0.3 now requires a minimum version of Streamlit >=0.86.x to fully support the recently migrated beta containers, if using Streamlit <=0.85.x please continue to use Hydralit <=1.0.2**
+<br>
+
+## **Version 1.0.12 fixes an edge case when installing with Streamlit for the first time.**
+<br>
 
 ## **Hydralit now fully supports all versions of Streamlit, including 1.4.0, despite the odd changes made in version 1.4.0 that completely broke Hydralit.**
+<br>
+
+## **Hydralit >=1.0.3 now requires a minimum version of Streamlit >=0.86.x to fully support the recently migrated beta containers, if using Streamlit <=0.85.x please continue to use Hydralit <=1.0.2**
+
 
 <br>
 <p align="center">

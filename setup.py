@@ -1,19 +1,18 @@
 from os import path
 import setuptools
-import hydralit as hy
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name=hy.__packagename__,
-    version=hy.__version__,
+    name='hydralit',
+    version='1.0.12',
     description='Multi-app Streamlit library.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/tanglespace/hydralit',
-    author=hy.__author__,
+    author='Jackson Storm',
     author_email='c6lculus8ntr0py@gmail.com',
     license="Apache 2",
     project_urls={
@@ -28,13 +27,13 @@ setuptools.setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     install_requires=[
-        'streamlit >=1.3.1',
+        'streamlit >=0.86',
         'compress_pickle',
         'hydralit_components>=1.0.7',
         'validators',
-        'pyjwt',
         'bokeh',
     ],
     python_requires='>=3.6',

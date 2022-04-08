@@ -3,10 +3,11 @@ st_ver = int(streamlit.__version__.replace('.',''))
 
 if st_ver < 140:
     import streamlit.report_thread as ReportThread
-    from streamlit.server.server import Server
-else:
+elif st_ver < 180:
     from streamlit.script_run_context import get_script_run_ctx
-    from streamlit.server.server import Server
+else:
+    from streamlit.scriptrunner.script_run_context import get_script_run_ctx
+from streamlit.server.server import Server
     
 
 #All credit goes to TVST https://gist.github.com/tvst/036da038ab3e999a64497f42de966a92 for this very good sessionstate class implementation

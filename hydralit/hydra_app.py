@@ -1,5 +1,6 @@
 from typing import Dict
 import streamlit as st
+import traceback
 from datetime import datetime, timedelta, timezone
 from hydralit.sessionstate import SessionState
 from hydralit.loading_app import LoadingApp
@@ -29,7 +30,9 @@ class HydraApp(object):
         use_banner_images=None,
         banner_spacing=None, 
         clear_cross_app_sessions=True, 
-        session_params=None):
+        session_params=None,
+        logger=None,
+        log_level='WARNING'):
         """
         A class to create an Multi-app Streamlit application. This class will be the host application for multiple applications that are added after instancing.
         The secret saurce to making the different apps work together comes from the use of a global session store that is shared with any HydraHeadApp that is added to the parent HydraApp.
@@ -79,7 +82,10 @@ class HydraApp(object):
             A flag to indicate if the local session store values within individual apps should be cleared when moving to another app, if set to False, when loading sidebar controls, will be a difference between expected and selected.
         session_params: Dict
             A Dict of parameter name and default values that will be added to the global session store, these parameters will be available to all child applications and they can get/set values from the store during execution.
-        
+        logger: Logger, None
+            A python logger that can provide traceback information on errors when running apps
+        log_level: str, 'WARNING'
+            A string to set the logging level; only matters if you set the logger parameter
         """
         
         self._apps = {}
@@ -115,8 +121,11 @@ class HydraApp(object):
         self._guest_access = 1
         self._hydralit_url_hash='hYDRALIT|-HaShing==seCr8t'
         self._no_access_level = 0
-
         self._user_session_params = session_params
+        self._logger = logger
+
+        log_level_mapping = {'CRITICAL':50, 'ERROR':40, 'WARNING':30, 'INFO':20, 'DEBUG':10, 'NOTSET':0}
+        self._log_level = log_level_mapping[log_level.upper()]
 
         try:
             st.set_page_config(page_title=title,page_icon=favicon,layout=layout,initial_sidebar_state=sidebar_state,)
@@ -288,6 +297,9 @@ class HydraApp(object):
         except Exception as e:
             st.error('😭 Error triggered from app: **{}**'.format(self.session_state.selected_app))
             st.error('Details: {}'.format(e))
+            if self._logger:
+                self._logger.log(level=self._log_level, msg=e)
+                self._logger.log(level=self._log_level, msg=traceback.format_exc())
 
 
     def _clear_session_values(self):

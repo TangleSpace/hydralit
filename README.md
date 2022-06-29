@@ -8,6 +8,10 @@ When converting existing applications, you can effectively put all the existing 
 
 <br>
 
+## **Version 1.0.13 fixes the long standing stupidty of Streamlit constantly changing the method name of the session context manager, now works with Streamlit 1.9.x and above.**
+ - Added the ability to disable to use of the app loader within the constructor.
+<br>
+
 ## **Version 1.0.12 fixes an edge case when installing with Streamlit for the first time.**
 <br>
 

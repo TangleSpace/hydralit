@@ -23,6 +23,7 @@ class HydraApp(object):
         navbar_theme=None,
         navbar_sticky=True,
         navbar_mode='pinned',
+        use_loader=True,
         use_cookie_cache=True,
         sidebar_state = 'auto',
         navbar_animation=True,
@@ -69,6 +70,8 @@ class HydraApp(object):
             example, navbar_theme = {'txc_inactive': '#FFFFFF','menu_background':'red','txc_active':'yellow','option_active':'blue'}
         navbar_sticky: bool, True
             Set navbar to be sticky and fixed to the top of the window.
+        use_loader: bool, True
+            Set if to use the app loader with auto transition spinners or load directly.
         navbar_animation: bool, False
             Set navbar is menu transitions should be animated.
         sidebar_state: str, 'auto'
@@ -108,7 +111,9 @@ class HydraApp(object):
         self._navbar_theme = navbar_theme
         self._banners = use_banner_images
         self._banner_spacing = banner_spacing
+        self._hide_streamlit_markers = hide_streamlit_markers
         self._loader_app = LoadingApp()
+        self._user_loader = use_loader
         self._use_cookie_cache = use_cookie_cache
         self._cookie_manager = None
         self._logout_label = None
@@ -150,41 +155,7 @@ class HydraApp(object):
 
         self.cross_session_clear = clear_cross_app_sessions
 
-        if hide_streamlit_markers:
-            self._hide_streamlit_markings = """
-                <style>
-                div[data-testid="stToolbar"] {
-                visibility: hidden;
-                height: 0%;
-                position: fixed;
-                }
-                div[data-testid="stDecoration"] {
-                visibility: hidden;
-                height: 0%;
-                position: fixed;
-                }
-                div[data-testid="stStatusWidget"] {
-                visibility: hidden;
-                height: 0%;
-                position: fixed;
-                }
-                #MainMenu {
-                visibility: hidden;
-                height: 0%;
-                }
-                header {
-                visibility: hidden;
-                height: 0%;
-                }
-                footer {
-                visibility: hidden;
-                height: 0%;
-                }
-                </style>
-            """
-        else:
-            self._hide_streamlit_markings = None
-
+        
         if clear_cross_app_sessions:
             preserve_state = 0
         else:
@@ -218,7 +189,12 @@ class HydraApp(object):
             The loader app, this app must implement a modified run method that will receive the target app to be loaded, within the loader run method, the run() method of the target app must be called, or nothing will happen and it will stay in the loader app.
         """
 
-        self._loader_app = loader_app
+        if loader_app:
+            self._loader_app = loader_app
+            self._user_loader = True
+        else:
+            self._loader_app = None
+            self._user_loader = False
 
 
     def add_app(self, title, app, icon=None, is_login=False, is_home=False, logout_label=None, is_unsecure=False):
@@ -274,7 +250,12 @@ class HydraApp(object):
                 self.session_state.other_nav_app = None
                 self.session_state.previous_app = None
                 self.session_state.selected_app = self._home_id
-                self._loader_app.run(self._home_app)
+
+                #can disable loader
+                if self._user_loader:
+                    self._loader_app.run(self._home_app)
+                else:
+                    self._home_app.run()
                 
                 #st.experimental_set_query_params(selected=self._home_app)
             else:
@@ -285,14 +266,26 @@ class HydraApp(object):
                     self.session_state.other_nav_app = None
 
                     if self.session_state.selected_app == self._home_id:
-                        self._loader_app.run(self._home_app)
+                        if self._user_loader:
+                            self._loader_app.run(self._home_app)
+                        else:
+                            self._home_app.run()
                     else:
-                        self._loader_app.run(self._apps[self.session_state.selected_app])
+                        if self._user_loader:
+                            self._loader_app.run(self._apps[self.session_state.selected_app])
+                        else:
+                            self._apps[self.session_state.selected_app].run()
                 else:
                     if self.session_state.selected_app == self._home_id:
-                        self._loader_app.run(self._home_app)
+                        if self._user_loader:
+                            self._loader_app.run(self._home_app)
+                        else:
+                            self._home_app.run()
                     else:
-                        self._loader_app.run(self._apps[self.session_state.selected_app])
+                        if self._user_loader:
+                            self._loader_app.run(self._apps[self.session_state.selected_app])
+                        else:
+                            self._apps[self.session_state.selected_app].run()
                 #st.experimental_set_query_params(selected=self.session_state.selected_app)
 
         except Exception as e:
@@ -410,6 +403,7 @@ class HydraApp(object):
     def _run_navbar(self, menu_data):
 
         if hasattr(hc,'__version__'):
+            
             if hc.__version__ >= 104:
                 login_nav = None
                 home_nav = None
@@ -419,10 +413,10 @@ class HydraApp(object):
                 
                 if self._home_app:
                     home_nav = {'id': self._home_id, 'label': self._home_label[0], 'icon': self._home_label[1], 'ttip': 'Home'}
-
-                self.session_state.selected_app = hc.nav_bar(menu_definition=menu_data,key="mainHydralitMenuComplex",home_name=home_nav,override_theme=self._navbar_theme,login_name=login_nav,sticky_nav=self._navbar_sticky, use_animation=self._navbar_animation,hide_streamlit_markers=self._hide_streamlit_markings,sticky_mode=self._navbar_mode)
+                     
+                self.session_state.selected_app = hc.nav_bar(menu_definition=menu_data,key="mainHydralitMenuComplex",home_name=home_nav,override_theme=self._navbar_theme,login_name=login_nav,use_animation=self._navbar_animation,hide_streamlit_markers=self._hide_streamlit_markers)
         else:
-            self.session_state.selected_app = hc.nav_bar(menu_definition=menu_data,key="mainHydralitMenuComplex",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label,sticky_nav=self._navbar_sticky)
+            self.session_state.selected_app = hc.nav_bar(menu_definition=menu_data,key="mainHydralitMenuComplex",home_name=self._home_app,override_theme=self._navbar_theme,login_name=self._logout_label)
 
         # if nav_selected is not None:
         #     if nav_selected != self.session_state.previous_app and self.session_state.selected_app != nav_selected:
@@ -642,8 +636,8 @@ class HydraApp(object):
 
         self._complex_nav = complex_nav
         #A hack to hide the hamburger button and Streamlit footer
-        # if self._hide_streamlit_markings is not None:
-        #     st.markdown(self._hide_streamlit_markings, unsafe_allow_html=True)
+        #if self._hide_streamlit_markings is not None:
+        #    st.markdown(self._hide_streamlit_markings, unsafe_allow_html=True)
 
         if self._banners is not None:
             if isinstance(self._banners,str):

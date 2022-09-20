@@ -150,14 +150,18 @@ class HydraApp(object):
             preserve_state = 0
         else:
             preserve_state = 1
+# st.session_state
 
-        if self._user_session_params is None:
-            self.session_state = SessionState.get(previous_app=None, selected_app=None,other_nav_app=None, preserve_state=preserve_state, allow_access=self._no_access_level,logged_in=False,access_hash=None)
-            self._session_attrs = {'previous_app':None, 'selected_app':None,'other_nav_app':None, 'preserve_state':preserve_state, 'allow_access':self._no_access_level,'logged_in':False,'access_hash':None}
-        else:
-            if isinstance(self._user_session_params,Dict):
-                self.session_state = SessionState.get(previous_app=None, selected_app=None,other_nav_app=None, preserve_state=preserve_state, allow_access=self._no_access_level,logged_in=False,current_user=None,access_hash=None,**(self._user_session_params))
-                self._session_attrs = {'previous_app':None, 'selected_app':None,'other_nav_app':None, 'preserve_state':preserve_state, 'allow_access':self._no_access_level,'logged_in':False,'access_hash':None,**(self._user_session_params)}
+        self._session_attrs = {'previous_app':None, 'selected_app':None,'other_nav_app':None, 'preserve_state':preserve_state, 'allow_access':self._no_access_level,'logged_in':False,'access_hash':None}
+        self.session_state = st.session_state
+
+        for key, item in self._session_attrs.items():
+            self.session_state[key] = item 
+
+        if isinstance(self._user_session_params,Dict):
+            self._session_attrs |= self._user_session_params
+            for key, item in self._user_session_params.items():
+                self.session_state[key] = item 
 
 
     # def _encode_hyauth(self):

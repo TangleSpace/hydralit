@@ -1,7 +1,6 @@
 from typing import Dict
 import streamlit as st
 from datetime import datetime, timedelta, timezone
-from hydralit.sessionstate import SessionState
 from hydralit.loading_app import LoadingApp
 import hydralit_components as hc
 from hydralit.wrapper_class import Templateapp
@@ -150,7 +149,6 @@ class HydraApp(object):
             preserve_state = 0
         else:
             preserve_state = 1
-# st.session_state
 
         self._session_attrs = {'previous_app':None, 'selected_app':None,'other_nav_app':None, 'preserve_state':preserve_state, 'allow_access':self._no_access_level,'logged_in':False,'access_hash':None}
         self.session_state = st.session_state

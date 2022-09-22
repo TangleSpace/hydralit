@@ -8,6 +8,11 @@ When converting existing applications, you can effectively put all the existing 
 
 <br>
 
+## **Version 1.0.14 fixes session state refactor performed by Streamlit, maybe after changing it 10 times they'll settle on a way forward, or they're just trying to constantly break the Hydralit package, wtf knows.**
+ - Now compatible with Streamlit >=1.12, thanks to the tireless efforts of [saikumarmk](https://github.com/saikumarmk)
+
+ <br>
+
 ## **Version 1.0.13 fixes the long standing stupidty of Streamlit constantly changing the method name of the session context manager, now works with Streamlit 1.9.x and above.**
  - Added the ability to disable to use of the app loader within the constructor.
 <br>

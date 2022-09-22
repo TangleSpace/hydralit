@@ -155,15 +155,13 @@ class HydraApp(object):
                                'preserve_state': preserve_state, 'allow_access': self._no_access_level, 'logged_in': False, 'access_hash': None}
         self.session_state = st.session_state
 
+        if isinstance(self._user_session_params, Dict):
+            self._session_attrs |= self._user_session_params
+
         for key, item in self._session_attrs.items():
             if not hasattr(self.session_state, key):
                 self.session_state[key] = item
 
-        if isinstance(self._user_session_params, Dict):
-            self._session_attrs |= self._user_session_params
-            for key, item in self._user_session_params.items():
-                if not hasattr(self.session_state, key):
-                    self.session_state[key] = item
 
     # def _encode_hyauth(self):
     #     user_access_level, username = self.check_access()

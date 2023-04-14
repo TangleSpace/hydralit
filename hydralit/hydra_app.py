@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from hydralit.loading_app import LoadingApp
 import hydralit_components as hc
 from hydralit.wrapper_class import Templateapp
+import traceback
 
 
 class HydraApp(object):
@@ -283,7 +284,7 @@ class HydraApp(object):
         except Exception as e:
             st.error(
                 '😭 Error triggered from app: **{}**'.format(self.session_state.selected_app))
-            st.error('Details: {}'.format(e))
+            st.error("Details: \n```\n{}\n```\n".format(traceback.format_exc()))
 
     def _clear_session_values(self):
         for key in st.session_state:
